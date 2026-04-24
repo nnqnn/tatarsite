@@ -1817,9 +1817,10 @@
   }
 
   .mobile-container {
-    max-width: 375px;
-    min-height: 100vh;
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    min-height: 100dvh;
+    margin: 0;
   }
 
   .tatar-gradient {
@@ -1829,6 +1830,7 @@
   .video-aspect {
     aspect-ratio: 9 / 16;
   }
+
 }
 
 :root {

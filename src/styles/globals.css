@@ -204,9 +204,10 @@ html {
 /* Мобильные утилиты для ТатарСайт */
 @layer utilities {
   .mobile-container {
-    max-width: 375px;
-    margin: 0 auto;
-    min-height: 100vh;
+    width: 100%;
+    max-width: none;
+    min-height: 100dvh;
+    margin: 0;
   }
   
   .tatar-gradient {
@@ -216,4 +217,5 @@ html {
   .video-aspect {
     aspect-ratio: 9/16;
   }
+
 }

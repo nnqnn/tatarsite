@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import { Badge } from './ui/badge';
 import { MapPin, Globe, ChevronRight, Check } from 'lucide-react';
 import logo from 'figma:asset/df889a880fc154ef65b1c2f4767be0f3c68d552c.png';
 
 interface OnboardingProps {
-  onComplete: (data: { interests: string[]; language: string }) => void;
+  onComplete: (data: { interests: string[]; language: string }) => Promise<void>;
+  loading?: boolean;
+  error?: string | null;
 }
 
-const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+const Onboarding: React.FC<OnboardingProps> = ({ onComplete, loading = false, error = null }) => {
   const [step, setStep] = useState(1);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('ru');
-  const [locationEnabled, setLocationEnabled] = useState(false);
+  const [locationRequested, setLocationRequested] = useState(false);
 
   const interests = [
     { id: 'nature', label: 'Природа', emoji: '🌲' },
@@ -29,7 +30,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const languages = [
     { id: 'ru', label: 'Русский', flag: '🇷🇺' },
     { id: 'tt', label: 'Татарский', flag: '🏛️' },
-    { id: 'en', label: 'English', flag: '🇺🇸' }
+    { id: 'en', label: 'Английский', flag: '🇺🇸' }
   ];
 
   const toggleInterest = (interestId: string) => {
@@ -41,16 +42,17 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   };
 
   const handleLocationRequest = () => {
+    setLocationRequested(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        () => setLocationEnabled(true),
-        () => setLocationEnabled(false)
+        () => undefined,
+        () => undefined
       );
     }
   };
 
-  const handleComplete = () => {
-    onComplete({
+  const handleComplete = async () => {
+    await onComplete({
       interests: selectedInterests,
       language: selectedLanguage
     });
@@ -64,7 +66,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           <img src={logo} alt="ТатарСайт" className="w-full h-full object-contain" />
         </div>
         <h1 className="text-2xl font-bold mb-2">ТатарСайт</h1>
-        <p className="text-white/80">Открой Татарстан с AI-гидом</p>
+        <p className="text-white/80">Открой Татарстан с ИИ-гидом</p>
       </div>
 
       {/* Прогресс */}
@@ -190,14 +192,11 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               >
                 Разрешить геолокацию
               </Button>
-              <Button 
-                onClick={() => setLocationEnabled(true)}
-                variant="outline" 
-                className="w-full border-white/30 text-white hover:bg-white/10"
-                size="lg"
-              >
-                Пропустить
-              </Button>
+              {locationRequested ? (
+                <p className="text-xs text-white/70 text-center">
+                  Запрос отправлен. Если доступ запрещён, вы сможете продолжить без геолокации.
+                </p>
+              ) : null}
             </div>
           </div>
         )}
@@ -218,10 +217,11 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         ) : (
           <Button 
             onClick={handleComplete}
+            disabled={loading}
             className="w-full bg-white text-primary hover:bg-white/90"
             size="lg"
           >
-            Начать путешествие
+            {loading ? 'Сохраняем...' : 'Начать путешествие'}
             <ChevronRight className="w-4 h-4 ml-2" />
           </Button>
         )}
@@ -236,6 +236,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           </Button>
         )}
       </div>
+      {error ? <p className="px-6 pb-6 text-sm text-red-200">{error}</p> : null}
     </div>
   );
 };
